@@ -73,8 +73,9 @@ Clone the repo:
 git clone https://github.com/KyllianChandelier/epi-trello.git
 cd epi-trello
 
-# futre integration with docker-compose
+# future integration with docker-compose
 ```
-## Author
+## 👤 Author
 [Kyllian Chandelier](https://github.com/KyllianChandelier)
+
 Epitech - B-PRO-500 Professional Work
