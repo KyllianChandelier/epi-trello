@@ -72,4 +72,9 @@ Clone the repo:
 ```bash
 git clone https://github.com/KyllianChandelier/epi-trello.git
 cd epi-trello
+
+# futre integration with docker-compose
 ```
+## Author
+[Kyllian Chandelier](https://github.com/KyllianChandelier)
+Epitech - B-PRO-500 Professional Work
