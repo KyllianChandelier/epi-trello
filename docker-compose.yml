@@ -8,8 +8,6 @@ services:
       POSTGRES_USER: epitrello
       POSTGRES_PASSWORD: epitrello_password
       POSTGRES_DB: epitrello
-    # networks:
-    #   - epitrello-net
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
