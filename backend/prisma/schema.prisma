@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -8,8 +8,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String?
+  password  String
+  boards    Board[]   @relation("BoardOwner")
+  members   BoardMember[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 model Board {
+  id          Int            @id @default(autoincrement())
+  name        String
+  description String?
+  owner       User           @relation("BoardOwner", fields: [ownerId], references: [id])
+  ownerId     Int
+  lists       List[]
+  members     BoardMember[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model BoardMember {
   id        Int      @id @default(autoincrement())
-  name      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  board     Board    @relation(fields: [boardId], references: [id])
+  boardId   Int
+  role      String   @default("member") // can be 'member' | 'admin'
   createdAt DateTime @default(now())
+
+  @@unique([userId, boardId])
+}
+
+model List {
+  id        Int      @id @default(autoincrement())
+  title     String
+  position  Int
+  board     Board    @relation(fields: [boardId], references: [id])
+  boardId   Int
+  cards     Card[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  position    Int
+  list        List       @relation(fields: [listId], references: [id])
+  listId      Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }

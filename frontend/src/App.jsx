@@ -1,52 +1,29 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./pages/Home";
+import Boards from "./pages/Boards";
 
-function App() {
-  const [boards, setBoards] = useState([]);
-  const [newBoard, setNewBoard] = useState("");
-
-  // Fetch all boards on load
-  useEffect(() => {
-    axios.get("http://localhost:3001/boards").then((res) => setBoards(res.data));
-  }, []);
-
-  // Create a new board
-  const handleAddBoard = async () => {
-    if (!newBoard.trim()) return;
-    const res = await axios.post("http://localhost:3001/boards", { name: newBoard });
-    setBoards([...boards, res.data]); // update state
-    setNewBoard(""); // reset input
-  };
-
+export default function App() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Boards</h1>
-
-      <div className="flex gap-2 mb-6">
-        <input
-          type="text"
-          value={newBoard}
-          onChange={(e) => setNewBoard(e.target.value)}
-          placeholder="New board name"
-          className="border p-2 rounded w-64"
-        />
-        <button
-          onClick={handleAddBoard}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Add Board
-        </button>
-      </div>
-
-      <ul className="space-y-2">
-        {boards.map((b) => (
-          <li key={b.id} className="p-2 border rounded">
-            {b.name}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/boards"
+            element={
+              <ProtectedRoute>
+                <Boards />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;
