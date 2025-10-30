@@ -24,7 +24,8 @@ app.post("/boards", authMiddleware, async (req, res) => {
 });
 
 app.get("/boards", async (req, res) => {
-  const boards = await prisma.board.findMany({ where: { ownerId: req.userId } });
+  const userId = req.query.userId;
+  const boards = await prisma.board.findMany({ where: { ownerId: Number(userId) } });
   res.json(boards);
 });
 

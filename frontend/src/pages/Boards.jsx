@@ -11,7 +11,7 @@ export default function Boards() {
   useEffect(() => {
     const fetchBoards = async () => {
       try {
-        const res = await api.get("/boards");
+        const res = await api.get("/boards", { params: { userId: user.id } });
         setBoards(res.data);
       } catch (err) {
         console.error("Error fetching boards:", err);
