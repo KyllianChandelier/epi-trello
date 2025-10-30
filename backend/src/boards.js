@@ -125,4 +125,44 @@ boardRouter.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+boardRouter.delete("/:id", authMiddleware, async (req, res) => {
+  const boardId = Number(req.params.id);
+  const userId = req.userId;
+
+  try {
+    // Verify that the user is admin for this board
+    const board = await prisma.board.findUnique({
+      where: { id: boardId },
+      include: { owner: true, members: true },
+    });
+
+    if (!board) {
+      return res.status(404).json({ error: "Board not found" });
+    }
+
+    // Determine user role
+    const membership = board.members.find((m) => m.userId === userId);
+    const isAdmin = board.ownerId === userId || membership?.role === "admin";
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: "You are not allowed to delete this board" });
+    }
+
+    // Delete related BoardMembers first
+    await prisma.boardMember.deleteMany({
+      where: { boardId },
+    });
+
+    // Then delete the board itself
+    await prisma.board.delete({
+      where: { id: boardId },
+    });
+
+    res.json({ message: "Board deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete board" });
+  }
+}); 
+
 export default boardRouter;
