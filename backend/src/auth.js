@@ -5,9 +5,9 @@ import { PrismaClient } from "@prisma/client";
 import { authMiddleware } from "./middleware/auth.js";
 
 const prisma = new PrismaClient();
-const router = express.Router();
+const authRouter = express.Router();
 
-router.post("/register", async (req, res) => {
+authRouter.post("/register", async (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password)
     return res.status(400).json({ error: "Missing email or password" });
@@ -24,7 +24,7 @@ router.post("/register", async (req, res) => {
   res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
 });
 
-router.post("/login", async (req, res) => {
+authRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
@@ -39,7 +39,7 @@ router.post("/login", async (req, res) => {
   res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
 });
 
-router.get("/me", authMiddleware, async (req, res) => {
+authRouter.get("/me", authMiddleware, async (req, res) => {
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
     select: { id: true, email: true, name: true },
@@ -47,4 +47,4 @@ router.get("/me", authMiddleware, async (req, res) => {
   res.json(user);
 });
 
-export default router;
+export default authRouter;
