@@ -1,0 +1,128 @@
+import express from "express";
+import { PrismaClient } from "@prisma/client";
+import { authMiddleware } from "./middleware/auth.js";
+
+const prisma = new PrismaClient();
+const boardRouter = express.Router();
+
+boardRouter.post("/", authMiddleware, async (req, res) => {
+  try {
+    const { name, description, members } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({ error: "Board name is required" });
+    }
+
+    // Step 1 — create the board (owner only)
+    const board = await prisma.board.create({
+      data: {
+        name,
+        description: description || null,
+        owner: { connect: { id: req.userId } },
+      },
+    });
+
+    // Step 2 — add the owner as a BoardMember (role: admin)
+    await prisma.boardMember.create({
+      data: {
+        userId: req.userId,
+        boardId: board.id,
+        role: "admin",
+      },
+    });
+
+    // Step 3 — handle optional invited members
+    if (Array.isArray(members) && members.length > 0) {
+      const foundUsers = await prisma.user.findMany({
+        where: { email: { in: members.map((m) => m.trim()) } },
+        select: { id: true },
+      });
+
+      const boardMembersData = foundUsers.map((u) => ({
+        userId: u.id,
+        boardId: board.id,
+        role: "member",
+      }));
+
+      if (boardMembersData.length > 0) {
+        await prisma.boardMember.createMany({
+          data: boardMembersData,
+          skipDuplicates: true,
+        });
+      }
+    }
+
+    // Step 4 — return the board with all members
+    const fullBoard = await prisma.board.findUnique({
+      where: { id: board.id },
+      include: {
+        members: {
+          include: { user: { select: { id: true, email: true, name: true } } },
+        },
+        owner: { select: { id: true, email: true, name: true } },
+      },
+    });
+
+    res.status(201).json(fullBoard);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create board" });
+  }
+});
+
+
+boardRouter.get("/", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Fetch boards where the user is either the owner or a member
+    const boards = await prisma.board.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+        ],
+      },
+      include: {
+        owner: {
+          select: { id: true, email: true, name: true },
+        },
+        members: {
+          include: {
+            user: { select: { id: true, email: true, name: true } },
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    // Map boards to include the current user’s role
+    const result = boards.map((board) => {
+      // Find the current user's membership entry
+      const membership = board.members.find((m) => m.userId === userId);
+
+      return {
+        id: board.id,
+        name: board.name,
+        description: board.description,
+        owner: board.owner,
+        members: board.members.map((m) => ({
+          id: m.user.id,
+          email: m.user.email,
+          name: m.user.name,
+          role: m.role,
+        })),
+        role: board.ownerId === userId ? "admin" : membership?.role || "member",
+        createdAt: board.createdAt,
+        updatedAt: board.updatedAt,
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch boards" });
+  }
+});
+
+export default boardRouter;
