@@ -36,7 +36,9 @@ export default function Boards() {
         ...boardData,
         ownerId: user.id,
       });
-      setBoards([...boards, res.data]);
+      
+      const newBoards = await api.get("/boards", { params: { userId: user.id } });
+      setBoards(newBoards.data);
       setIsModalOpen(false);
       setBoardData({ name: "", description: "", members: [] });
     } catch (err) {
