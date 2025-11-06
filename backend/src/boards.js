@@ -165,4 +165,47 @@ boardRouter.delete("/:id", authMiddleware, async (req, res) => {
   }
 }); 
 
+boardRouter.get("/:id", authMiddleware, async (req, res) => {
+  try {
+    const boardId = Number(req.params.id);
+    const userId = req.userId;
+
+    const board = await prisma.board.findUnique({
+      where: { id: boardId },
+      include: {
+        owner: { select: { id: true, email: true, name: true } },
+        members: {
+          include: {
+            user: { select: { id: true, email: true, name: true } },
+          },
+        },
+        lists: {
+          include: {
+            // cards: true (when you implement them)
+          },
+        },
+      },
+    });
+
+    if (!board) return res.status(404).json({ error: "Board not found" });
+
+    // Check access
+    const membership = board.members.find((m) => m.userId === userId);
+    const isAdmin = board.ownerId === userId || membership?.role === "admin";
+
+    if (!isAdmin && !membership) {
+      return res.status(403).json({ error: "You are not allowed to view this board" });
+    }
+
+    // Include user role in the response
+    const role = isAdmin ? "admin" : membership?.role || "member";
+
+    res.json({ ...board, role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch board" });
+  }
+});
+
+
 export default boardRouter;
