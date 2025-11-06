@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Boards from "./pages/Boards";
+import Board from "./pages/Board";
 
 export default function App() {
   return (
@@ -18,11 +19,11 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route
               path="/boards"
-              element={
-                <ProtectedRoute>
-                  <Boards />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><Boards /></ProtectedRoute>}
+            />
+            <Route
+              path="/board/:id"
+              element={<ProtectedRoute><Board /></ProtectedRoute>}
             />
           </Routes>
         </Layout>

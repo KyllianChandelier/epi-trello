@@ -63,6 +63,10 @@ export default function Boards() {
       setBoardToDelete(null);
     }
   };
+  
+  const openBoard = (id) => {
+    window.location.href = `/board/${id}`;
+  };
 
   return (
     <div className="p-6">
@@ -205,6 +209,13 @@ export default function Boards() {
             >
               {b.role}
             </span>
+            <button
+            onClick={() => openBoard(b.id)}
+            className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-2 shadow transition"
+            title="Open board"
+            >
+            Open
+          </button>
           </div>
         ))}
       
