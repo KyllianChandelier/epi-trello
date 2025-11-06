@@ -27,7 +27,7 @@ export default function Login() {
     <div className="h-screen bg-gray-50 flex max-w-screen flex-1 flex-col justify-center items-center text-center">
       <h2 className="text-4xl font-extrabold text-gray-900 mb-4">Login</h2>
       {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white p-8 rounded-lg shadow">
+      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white p-8 rounded-lg shadow space-y-4">
         <input
           type="email"
           placeholder="Email"
