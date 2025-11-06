@@ -1,13 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   if (user) {
-    // If logged in, go straight to boards
-    navigate("/boards");
+    window.location.href = "/boards";
     return null;
   }
 

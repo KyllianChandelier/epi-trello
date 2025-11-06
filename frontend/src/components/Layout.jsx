@@ -56,7 +56,7 @@ export default function Layout({ children }) {
       </header>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 max-w-6xl mx-auto w-full p-4">{children}</main>
+      <main className="flex-1 mx-auto w-full p-4">{children}</main>
 
       {/* FOOTER (optional later) */}
     </div>
