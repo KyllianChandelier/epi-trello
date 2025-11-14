@@ -114,7 +114,7 @@ export default function Board() {
                 key={list.id}
                 className="bg-white rounded-lg shadow p-3 w-72 flex-shrink-0"
                 >
-                <h3 className="font-semibold text-gray-800 mb-2">{list.name}</h3>
+                <h3 className="font-semibold text-gray-800 mb-2">{list.title}</h3>
 
                 <div className="space-y-2">
                     {/* Placeholder for cards */}
@@ -170,14 +170,9 @@ export default function Board() {
                 onClick={async () => {
                     if (!newListName.trim()) return;
                     try {
-                    const res = await axios.post(
-                        `http://localhost:3001/boards/${id}/lists`,
-                        { name: newListName },
-                        {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                        }
+                    const res = await api.post(`/boards/${board.id}/lists`, {
+                        name: newListName.trim(),
+                    }
                     );
                     setBoard({
                         ...board,
