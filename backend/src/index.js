@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
-import authRouter from "./src/auth.js";
-import boardRouter from "./src/boards.js";
-import { authMiddleware } from "./src/middleware/auth.js";
+import authRouter from "./auth.js";
+import boardRouter from "./boards.js";
+import listRouter from "./lists.js";
 
 const app = express();
 app.use(cors());
@@ -17,6 +17,7 @@ app.get("/ping", (req, res) => res.json({ message: "pong" }));
 
 app.use("/boards", boardRouter);
 app.use("/auth", authRouter);
+app.use("/", listRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
