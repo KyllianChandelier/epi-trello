@@ -1,0 +1,1 @@
+// this component will represents a single card within a list
