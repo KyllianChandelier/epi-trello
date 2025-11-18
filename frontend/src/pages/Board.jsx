@@ -17,20 +17,21 @@ export default function Board() {
   const [showAddList, setShowAddList] = useState(false);
   const [newListName, setNewListName] = useState("");
 
+  const fetchBoard = async () => {
+    try {
+      const res = await api.get(`/boards/${id}`);
+      setBoard(res.data);
+    } catch {
+      navigate("/boards");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBoard = async () => {
-      try {
-        const res = await api.get(`/boards/${id}`);
-        setBoard(res.data);
-      } catch (err) {
-        console.error(err);
-        navigate("/boards");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchBoard();
   }, [id]);
+
 
   if (loading) return <div className="p-6 text-gray-500">Loading...</div>;
   if (!board) return null;
@@ -47,7 +48,12 @@ export default function Board() {
       <main className="flex-1 overflow-x-auto p-4">
         <div className="flex gap-4 min-w-max">
           {board.lists.map((list) => (
-            <ListColumn key={list.id} list={list} />
+            <ListColumn
+              key={list.id}
+              list={list}
+              board={board}
+              refreshBoard={() => fetchBoard()}
+            />
           ))}
 
           {board.role === "admin" && (
